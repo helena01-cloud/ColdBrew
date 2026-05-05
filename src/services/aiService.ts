@@ -24,15 +24,22 @@ export const aiService = {
 
     if (type === 'recruiter') {
       const d = data as any;
+      const firstName = d.contactName ? d.contactName.trim().split(' ')[0] : 'there';
       prompt = `
         You are a helpful career assistant. Write a personalized LinkedIn outreach message to a Recruiter or Hiring Manager.
         
+        Recipient Details:
+        - Name: ${d.contactName || 'Hiring Manager'}
+        - Role: ${d.contactRole || 'Recruiter'}
+        - Company: ${d.company || 'the company'}
+
         Context:
         - Target Role: ${d.role}
         - Why the user is a good fit: ${d.whyFit}
         - The Ask: ${d.ask}
         
         Guidelines:
+        - Start with a personalized greeting using ONLY their first name: "Hi ${firstName}" or similar. Do not include the last name in the greeting.
         - Tone: Warm, professional, confident, and intentional.
         - Avoid generic phrasing like "I hope this finds you well".
         - Sound like a real person, not a bot.
@@ -41,15 +48,22 @@ export const aiService = {
       `;
     } else {
       const d = data as any;
+      const firstName = d.contactName ? d.contactName.trim().split(' ')[0] : 'there';
       prompt = `
         You are a helpful career assistant. Write a personalized LinkedIn outreach message for a Coffee Chat / Networking request.
         
+        Recipient Details:
+        - Name: ${d.contactName || 'Professional'}
+        - Role: ${d.contactRole || 'Professional'}
+        - Company: ${d.company || 'the company'}
+
         Context:
         - Reason for reaching out: ${d.whyReachOut}
         - Topic to chat about: ${d.chatTopic}
         - The Ask: ${d.ask}
         
         Guidelines:
+        - Start with a personalized greeting using ONLY their first name: "Hi ${firstName}" or similar. Do not include the last name in the greeting.
         - Tone: Warm, curious, respectful of their time, and professional.
         - Avoid generic phrasing.
         - Sound like a real person, not a bot.

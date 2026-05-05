@@ -88,13 +88,19 @@ export default function App() {
 
     const parsed = parsingService.parseLinkedInUrl(formData.linkedinUrl);
     
+    // Prioritize user-entered values from the form over auto-parsed ones
+    const f = formData as any;
+    const finalName = f.contactName || parsed.name;
+    const finalCompany = f.company || parsed.company;
+    const finalRole = f.contactRole || parsed.role;
+
     const newContact: Contact = {
       id: crypto.randomUUID(),
       outreachType,
       linkedinUrl: formData.linkedinUrl,
-      parsedName: parsed.name,
-      parsedRole: parsed.role,
-      parsedCompany: parsed.company,
+      parsedName: finalName,
+      parsedRole: finalRole,
+      parsedCompany: finalCompany,
       generatedMessage,
       createdAt: new Date().toISOString(),
       formMetadata: formData
@@ -113,9 +119,35 @@ export default function App() {
   };
 
   const handleDeleteContact = (id: string) => {
-    storageService.deleteContact(id);
-    setContacts(prev => prev.filter(c => c.id !== id));
-    toast.success("Contact removed");
+    storageService.moveToTrash(id);
+    setContacts(storageService.getContacts());
+    
+    toast((t) => (
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium">Contact moved to trash</span>
+        <button
+          onClick={() => {
+            handleRestoreContact(id);
+            toast.dismiss(t.id);
+          }}
+          className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-lg"
+        >
+          Undo
+        </button>
+      </div>
+    ), { duration: 5000 });
+  };
+
+  const handleRestoreContact = (id: string) => {
+    storageService.restoreFromTrash(id);
+    setContacts(storageService.getContacts());
+    toast.success("Contact restored!");
+  };
+
+  const handlePermanentDelete = (id: string) => {
+    storageService.deletePermanently(id);
+    // No need to update main contacts state as it's only in trash
+    toast.success("Deleted permanently");
   };
 
   const renderScreen = () => {
@@ -143,7 +175,14 @@ export default function App() {
           />
         );
       case 'contacts':
-        return <ContactsScreen contacts={contacts} onDelete={handleDeleteContact} />;
+        return (
+          <ContactsScreen 
+            contacts={contacts} 
+            onDelete={handleDeleteContact} 
+            onRestore={handleRestoreContact}
+            onPermanentDelete={handlePermanentDelete}
+          />
+        );
       case 'settings':
         return <SettingsScreen />;
       default:

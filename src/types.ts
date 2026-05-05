@@ -4,6 +4,9 @@ export type CharacterLimit = '200' | '300' | 'unlimited';
 
 export interface RecruiterForm {
   linkedinUrl: string;
+  contactName: string;
+  company: string;
+  contactRole: string;
   role: string;
   whyFit: string;
   ask: string;
@@ -11,6 +14,9 @@ export interface RecruiterForm {
 
 export interface CoffeeChatForm {
   linkedinUrl: string;
+  contactName: string;
+  company: string;
+  contactRole: string;
   whyReachOut: string;
   chatTopic: string;
   ask: string;
